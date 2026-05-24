@@ -1,7 +1,5 @@
 # AXI4 Verification Plan
 
-**Protocol reference:** [arm_axi_references.md](arm_axi_references.md) — official Arm IHI 0022 / IHI 0051 links and signal glossary.
-
 ## Scope
 
 | Parameter | Value |
@@ -39,25 +37,13 @@
 
 ```bash
 cd sim
-make fast-regression   # Verilator + cocotb
-make uvm-regression    # Questa/VCS UVM
+make regression        # Windows PowerShell
+./regression.sh        # Linux
 ```
-
-## Tool flows
-
-| Stage | Tool | Location |
-|-------|------|----------|
-| Fast regression | Verilator + cocotb | `cocotb/`, `sim/Makefile.verilator` |
-| Protocol debug | cocotb + GTKWave | `sim/waves.gtkw` |
-| Formal | SymbiYosys | `formal/*.sby` |
-| UVM signoff | Questa/VCS | `tb/tests/` |
-
-See [dv_flow.md](dv_flow.md).
 
 ## Sign-off Checklist
 
-- [ ] Cocotb fast regression PASS (`make fast-regression`)
-- [ ] SymbiYosys formal PASS (`cd formal && make`)
-- [ ] UVM regression PASS (`make uvm-regression`)
-- [ ] Functional coverage ≥ 90% on Questa (or waived)
-- [ ] No SVA failures in UVM sim
+- [ ] All regression tests PASS
+- [ ] Functional coverage ≥ 90% (or waived with justification)
+- [ ] No assertion failures
+- [ ] No protocol SVA failures on master interface
