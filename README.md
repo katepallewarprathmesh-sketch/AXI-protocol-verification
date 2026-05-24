@@ -1,61 +1,86 @@
 # AXI Protocol Verification
 
-Complete ASIC-style design verification (DV) flow for **AXI4** using **SystemVerilog** and **UVM 1.2**.
+Multi-flow AXI4 verification: **Verilator** (fast), **cocotb** (debug), **SymbiYosys** (formal), **UVM** (signoff).
 
-## Project Structure
+## Tool matrix
+
+| Task | Tool | Command |
+|------|------|---------|
+| Fast regression | Verilator + cocotb + cocotbext-axi | `cd sim && make fast-regression` |
+| Protocol debug | cocotb + GTKWave | `cd sim && make cocotb-waves` |
+| Formal checks | SymbiYosys | `cd formal && make` |
+| UVM regression | Questa / VCS | `cd sim && make uvm-regression` |
+
+Details: [docs/dv_flow.md](docs/dv_flow.md)
+
+## Project structure
 
 ```
-rtl/                    # DUT: axi_slave_mem (AXI4 SRAM slave)
-tb/
-  interfaces/           # axi_if
-  pkg/                  # axi_types, axi_pkg
-  agents/               # Master/slave UVM agents
-  env/                  # Environment, scoreboard, coverage
-  sequences/            # Directed and random sequences
-  tests/                # UVM tests
-  assertions/           # Protocol SVA
-  tb_top.sv             # Top-level testbench
-sim/                    # Makefile, compile.f, regression
-docs/                   # Verification plan and configuration
+rtl/axi_slave_mem.sv          # DUT
+tb/                           # UVM env, SVA, cocotb top
+cocotb/                       # Python tests (cocotbext-axi)
+formal/                       # SymbiYosys (.sby)
+sim/                          # Makefiles, waves, scripts
+docs/                         # Plans and flow guide
 ```
 
-## Quick Start
+## Quick start
 
-Requires **Questa/ModelSim** or **Synopsys VCS** with UVM 1.2.
+### 1. Fast regression (recommended first)
+
+```bash
+pip install -r requirements.txt
+cd sim
+make fast-regression
+```
+
+Windows:
+
+```powershell
+pip install -r requirements.txt
+cd sim
+.\run_cocotb.ps1 -Regression
+```
+
+### 2. Protocol debug with waves
+
+```bash
+cd sim
+make cocotb-waves MODULE=test_smoke
+gtkwave sim_build/dump.fst waves.gtkw
+```
+
+### 3. Formal
+
+```bash
+cd formal
+make
+```
+
+### 4. UVM (Questa / VCS)
 
 ```bash
 cd sim
 make compile
-make run TEST=axi_smoke_test
-make regression
+make uvm-run TEST=axi_smoke_test
+make uvm-regression
 ```
 
-Windows (PowerShell):
+## Cocotb tests
 
-```powershell
-cd sim
-make compile
-make run TEST=axi_smoke_test
-.\regression.ps1
-```
+| Module | Description |
+|--------|-------------|
+| `test_smoke` | Single write/read pairs |
+| `test_burst` | Multi-byte INCR bursts |
+| `test_random` | Random address/data stress |
 
-## Tests
+## UVM tests
 
-| Test | Purpose |
-|------|---------|
-| `axi_smoke_test` | Basic write/read pairs |
-| `axi_burst_test` | INCR burst write + readback |
-| `axi_rand_test` | Randomized traffic with scoreboard check |
-
-## DV Flow
-
-1. **Compile** — RTL + UVM TB (`make compile`)
-2. **Run** — Single test with seed (`make run TEST=... SEED=...`)
-3. **Check** — UVM report summary, scoreboard, SVA
-4. **Coverage** — Functional covergroups in `axi_coverage`
-5. **Regression** — `make regression` or `regression.ps1`
-
-See [docs/verification_plan.md](docs/verification_plan.md) for coverage goals and sign-off criteria.
+| Test | Description |
+|------|-------------|
+| `axi_smoke_test` | Write/read pairs + scoreboard |
+| `axi_burst_test` | INCR bursts |
+| `axi_rand_test` | Random traffic |
 
 ## License
 
