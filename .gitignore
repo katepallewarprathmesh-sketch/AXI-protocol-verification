@@ -1,0 +1,13 @@
+work/
+transcript
+*.wlf
+*.vstf
+logs/
+simv
+simv.daidir
+csrc/
+ucli.key
+vc_hdrs.h
+DVEfiles/
+*.log
+*.ucdb
