@@ -1,0 +1,31 @@
+[options]
+mode bmc
+depth 40
+expect pass,fail,unknown
+
+[script]
+read -formal -sv ../rtl/axi_slave_mem.sv
+read -formal -sv axi_master_assumes.sv
+read -formal -sv axi_slave_asserts.sv
+read -formal -sv ../tb/assertions/axi_protocol_assertions.sv
+read -formal -sv fpv_axi_slave_top.sv
+prep -top fpv_axi_slave_top
+chformal -early -assume
+flatten
+setattr -unset init
+setattr -set keep_hierarchy 0
+set -undef
+opt -fast
+check
+hierarchy -check
+chformal -early -assume
+flatten
+opt -fast
+fmcheck
+
+[files]
+../rtl/axi_slave_mem.sv
+axi_master_assumes.sv
+axi_slave_asserts.sv
+../tb/assertions/axi_protocol_assertions.sv
+fpv_axi_slave_top.sv

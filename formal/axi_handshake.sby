@@ -1,0 +1,20 @@
+[options]
+mode bmc
+depth 30
+expect pass,fail,unknown
+
+[script]
+read -formal -sv axi_master_assumes.sv
+read -formal -sv ../tb/assertions/axi_protocol_assertions.sv
+read -formal -sv fpv_handshake_top.sv
+prep -top fpv_handshake_top
+chformal -early -assume
+flatten
+set -undef
+opt -fast
+fmcheck
+
+[files]
+axi_master_assumes.sv
+../tb/assertions/axi_protocol_assertions.sv
+fpv_handshake_top.sv
